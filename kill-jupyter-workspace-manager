@@ -1,0 +1,10 @@
+#!/bin/sh
+
+LOG_DIR=~/.logs
+PID_FILE=$LOG_DIR/jupyter-workspace-manager.pid
+
+# if the server is running, kill it and remove pid file
+if [ -f "$PID_FILE" ]; then
+    kill $(cat "$PID_FILE")
+    rm "$PID_FILE"
+fi
