@@ -6,7 +6,7 @@ PID_FILE="$LOG_DIR/jupyter-workspace-manager.pid"
 LOG_FILE="$LOG_DIR/jupyter-workspace-manager.log"
 
 [ -d "$LOG_DIR" ] || mkdir "$LOG_DIR"
-nohup ./jupyter-workspace-manager ${@} >> "$LOG_FILE" 2>&1 &
+nohup jupyter-workspace-manager ${@} >> "$LOG_FILE" 2>&1 &
 
 # if we actually started the server, remember its pid
 [ $? ] && echo $! > "$PID_FILE"
