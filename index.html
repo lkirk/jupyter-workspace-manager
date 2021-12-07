@@ -32,7 +32,7 @@
     <h3>Welcome to the jupyter workspace manager</h3>
     <h3>Current workspaces</h3>
     <select id="jupyter-instance" name="instance" onchange="addLinks(this)">
-      <option value="" selected disabled hidden>Choose here</option>
+      <option value="" selected>Choose here</option>
       {{ range $value := .Instances }}
       <option value={{  $value  }}>{{ $value }}</option>
       {{ end }}
@@ -51,11 +51,22 @@
       </tr>
       {{ end }}
     </table>
+    <input type="checkbox" id="removeMode" name="removeMode" onclick="clearSelectionIfExiting(this)">
+    <label for="removeMode">Remove Mode</label>
+    <button onclick="removeWorkspaces()">Remove Selected</button>
+    <!-- https://jupyterlab.readthedocs.io/en/stable/user/urls.html -->
+    <form target="_blank" rel="noreferrer noopener">
+      <label for="new-workspace">Create a new workspace</label>
+      <input id="new-workspace">
+      <button id="create-new-workspace" onclick="validateAndCreateNewWorkspace(this)">Create</button>
+    </form>
 
     <script>
 
+      // On Load actions
       var SELECTED = [];
-      addRowClickActions()
+      addRowClickActions();
+      linksOnLoad();
 
       function selectRowClickAction() {
           var rowSelected = this.parentNode;
@@ -75,11 +86,11 @@
       }
 
       function addRowClickActions() {
-          var table = document.getElementById('workspace-table');
-          var cells = table.getElementsByTagName('td');
+          var table = document.getElementById("workspace-table");
+          var cells = table.getElementsByTagName("td");
 
           for (var i = 0; i < cells.length; i++) {
-              cells[i].onclick = selectRowClickAction
+              cells[i].onclick = selectRowClickAction;
           }
       }
 
@@ -87,13 +98,13 @@
           return document.getElementById("removeMode").checked;
       }
 
-      function removeWorkspaces() {
-          removeModeBox = document.getElementById("removeMode");
+      function removeWorkspaces() {  // eslint-disable-line no-unused-vars
+          var removeModeBox = document.getElementById("removeMode");
           if (removeModeBox.checked === true) {
               if (SELECTED.length) {
-                  var removeWorkspaceUrl = new URL(document.URL + "/remove_workspace")
+                  var removeWorkspaceUrl = new URL(document.URL + "/remove_workspace");
                   removeWorkspaceUrl.search = new URLSearchParams({
-                      'workspaces': SELECTED.join(',')
+                      "workspaces": SELECTED.join(",")
                   }).toString();
 
                   var reqPromise = fetch(removeWorkspaceUrl).then(function (response) {
@@ -104,19 +115,19 @@
                   });
 
                   reqPromise.then(function (data) {
-		      // TODO: check error from response, alert?
-		      var removedWorkspaces = new Set(data.result);
-		      var table = document.getElementById('workspace-table');
-		      // delete from the bottom up, so that the table indices don't get messed up on deletion
-		      // Also, do not traverse into the table header (hence the i > 1 condition)
-		      for (var i = table.rows.length - 1; i > 1; i--) {
-			  if (removedWorkspaces.has(table.rows[i].children.instanceName.textContent)) {
-			      table.deleteRow(i)
-			  }
-		      }
+                      // TODO: check error from response, alert?
+                      var removedWorkspaces = new Set(data.result);
+                      var table = document.getElementById("workspace-table");
+                      // delete from the bottom up, so that the table indices don't get messed up on deletion
+                      // Also, do not traverse into the table header (hence the i > 1 condition)
+                      for (var i = table.rows.length - 1; i >= 1; i--) {
+                          if (removedWorkspaces.has(table.rows[i].children.instanceName.textContent)) {
+                              table.deleteRow(i);
+                          }
+                      }
                   }).catch(function (err) {
-                      // console.warn('Workspace removal request failed: ', err);
-                      alert('Workspace removal request failed: ' + err.message);
+                      // console.warn("Workspace removal request failed: ", err);
+                      alert("Workspace removal request failed: " + err.message);
                   });
               }
 
@@ -126,30 +137,52 @@
       }
 
       function addLink(linkCell, baseURL) {
-	  firstChild = linkCell.childNodes[0]
-	  if (firstChild.nodeName == "A") {
+          var firstChild = linkCell.childNodes[0];
+          if (firstChild.nodeName == "A") {
               firstChild.href = "http://" + baseURL + "/lab/workspaces/" + firstChild.textContent;
-	  } else {
-              let link = document.createElement('a');
+          } else {
+              let link = document.createElement("a");
               let linkText = firstChild.nodeValue;
               link.href = "http://" + baseURL + "/lab/workspaces/" + linkText;
-	      link.target = "_blank"; // open link in new tab
+              link.target = "_blank"; // open link in new tab
+              link.rel = "noreferrer noopener"; // prevent malicious attacks from pages I link to from pages I link to
 
               link.appendChild(document.createTextNode(linkText));
               linkCell.replaceChild(link, firstChild);
-	  }
+          }
       }
 
-      function addLinks(selections) {
+      function addLinks(selections) {  // eslint-disable-line no-unused-vars
           let linkCells = document.getElementsByName("instanceName");
-	  let baseUrl = selections[selections.selectedIndex].value
-	  linkCells.forEach(c => addLink(c, baseUrl))
+          let baseUrl = selections[selections.selectedIndex].value;
+          if (baseUrl == "") {
+              linkCells.forEach(c => clearLink(c));
+          } else {
+              linkCells.forEach(c => addLink(c, baseUrl));
+          }
+      }
+
+      function clearLink(linkCell) {
+          var firstChild = linkCell.childNodes[0];
+          if (firstChild.nodeName == "A") {
+              linkCell.replaceChild(firstChild.childNodes[0], firstChild);
+          }
+      }
+
+      function linksOnLoad() {
+          var selectedInstance = document.getElementById("jupyter-instance");
+          let linkCells = document.getElementsByName("instanceName");
+          if (selectedInstance.value === "") {
+              linkCells.forEach(c => clearLink(c));
+          } else {
+              linkCells.forEach(c => addLink(c, selectedInstance[selectedInstance.selectedIndex].value));
+          }
       }
 
       function clearSelectionIfExiting(removeCheckbox) {
           if (!removeCheckbox.checked) {
-              var table = document.getElementById('workspace-table');
-              var rows = table.getElementsByTagName('tr');
+              var table = document.getElementById("workspace-table");
+              var rows = table.getElementsByTagName("tr");
               for (var i = 0; i < rows.length; i++) {
                   if (rows[i].selected === true) {
                       rows[i].selected = false;
@@ -160,10 +193,42 @@
           }
       }
 
-    </script>
+      function validateAndCreateNewWorkspace(button) {  // eslint-disable-line no-unused-vars
+          let linkCells = document.getElementsByName("instanceName");
+          let existingWorkspaces = new Set();
+          linkCells.forEach(e => existingWorkspaces.add(e.textContent));
 
-    <input type="checkbox" id="removeMode" name="removeMode" onclick="clearSelectionIfExiting(this)">
-    <label for="removeMode">Remove Mode</label>
-    <button onclick="removeWorkspaces()">Remove Selected</button>
+          var instance = document.getElementById("jupyter-instance");
+          var selectedInstance = instance[instance.selectedIndex].value;
+          if (selectedInstance == "") {
+              button.setCustomValidity("You must select an instance before making a workspace");
+              return;
+          }
+
+          let formValue = button.parentElement.getElementsByTagName("input")["new-workspace"].value;
+          if (existingWorkspaces.has(formValue)) {
+              button.setCustomValidity("Expecting a unique workspace, '" + formValue + "' already exists");
+              return;
+          } else if (formValue == "") {
+              button.setCustomValidity("Cannot have empty workspace name");
+              return;
+          } else {
+              button.parentElement.action = "http://" + selectedInstance + "/lab/workspaces/" + formValue;
+              button.setCustomValidity("");
+          }
+
+          var table = document.getElementById("workspace-table");
+          var newRow = table.insertRow(-1);
+          var nameCol = newRow.insertCell(0);
+          nameCol.setAttribute("name", "instanceName");
+
+          newRow.insertCell(1);
+          newRow.insertCell(2);
+
+          nameCol.appendChild(document.createTextNode(formValue));
+          linksOnLoad();
+      }
+
+    </script>
   <body>
 </html>
