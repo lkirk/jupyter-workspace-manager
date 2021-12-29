@@ -1,8 +1,8 @@
 name: Release Jupyter Workspace Manager
 on:
   push:
-    #    tags:
-    #      - v*
+    tags:
+      - v*
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -24,6 +24,7 @@ jobs:
       - name: Create Tar File
         run: |
           mkdir "${{ env.VERSIONED_NAME }}"
+          cp jupyter-workspace-manager "${{ env.VERSIONED_NAME }}"
           tar -czvf "${{ env.GZ_FILENAME }}" "${{ env.VERSIONED_NAME }}"
 
       - name: Release
@@ -32,9 +33,3 @@ jobs:
           files: ${{ env.GZ_FILENAME }}
           draft: true
           name: ${{ env.VERSION }}
-          # - name: Upload Artifact
-          #   uses: actions/upload-artifact@v2
-          #   with:
-          #     name: ${{ env.GZ_FILENAME }}
-          #     path: ${{ env.GZ_FILENAME }}
-          #     if-no-files-found: error
