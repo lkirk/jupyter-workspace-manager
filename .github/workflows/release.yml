@@ -1,0 +1,12 @@
+name: Release Jupyter Workspace Manager
+on:
+  push:
+    tags:
+      - v*
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build
+        uses: golang:1.17.5
+        run: ls -la
