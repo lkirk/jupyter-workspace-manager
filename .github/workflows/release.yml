@@ -8,5 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     container: golang:1.17.5
     steps:
+      - uses: actions/checkout@v2
       - name: Build
         run: ls -la
