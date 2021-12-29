@@ -12,7 +12,9 @@ jobs:
 
       - name: Get Version >> Environment
         run: |
+          VERSION="$(cat VERSION)"
           VERSIONED_NAME="jupyter-workspace-manager-$(cat VERSION)"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "VERSIONED_NAME=$VERSIONED_NAME" >> "$GITHUB_ENV"
           echo "GZ_FILENAME=$VERSIONED_NAME.tar.gz" >> "$GITHUB_ENV"
 
@@ -29,6 +31,8 @@ jobs:
         with:
           files: ${{ env.GZ_FILENAME }}
           draft: true
+          name: ${{ env.VERSION }}
+          generate_release_notes: true
           # - name: Upload Artifact
           #   uses: actions/upload-artifact@v2
           #   with:
