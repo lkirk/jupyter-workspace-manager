@@ -24,9 +24,14 @@ jobs:
           mkdir "${{ env.VERSIONED_NAME }}"
           tar -czvf "${{ env.GZ_FILENAME }}" "${{ env.VERSIONED_NAME }}"
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: ${{ env.GZ_FILENAME }}
-          path: ${{ env.GZ_FILENAME }}
-          if-no-files-found: error
+          files: ${{ env.GZ_FILENAME }}
+          draft: true
+          # - name: Upload Artifact
+          #   uses: actions/upload-artifact@v2
+          #   with:
+          #     name: ${{ env.GZ_FILENAME }}
+          #     path: ${{ env.GZ_FILENAME }}
+          #     if-no-files-found: error
