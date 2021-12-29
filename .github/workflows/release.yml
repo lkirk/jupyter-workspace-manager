@@ -13,8 +13,8 @@ jobs:
       - name: Get Version >> Environment
         run: |
           VERSIONED_NAME="jupyter-workspace-manager-$(cat VERSION)"
-          echo "VERSIONED_NAME='$VERSIONED_NAME'" >> "$GITHUB_ENV"
-          echo "GZ_FILENAME='$VERSIONED_NAME.tar.gz'" >> "$GITHUB_ENV"
+          echo "VERSIONED_NAME=$VERSIONED_NAME" >> "$GITHUB_ENV"
+          echo "GZ_FILENAME=$VERSIONED_NAME.tar.gz" >> "$GITHUB_ENV"
 
       - name: Build
         run: make
