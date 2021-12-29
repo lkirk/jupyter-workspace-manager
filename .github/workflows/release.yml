@@ -21,7 +21,6 @@ jobs:
 
       - name: Create Tar File
         run:
-          set -ex
           mkdir "${{ env.VERSIONED_NAME }}"
           tar -czvf "${{ env.GZ_FILENAME }}" "${{ env.VERSIONED_NAME }}"
 
@@ -30,3 +29,4 @@ jobs:
         with:
           name: ${{ env.VERSIONED_NAME }}
           path: ${{ env.GZ_FILENAME }}
+          if-no-files-found: fail
