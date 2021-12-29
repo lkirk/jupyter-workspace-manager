@@ -20,7 +20,7 @@ jobs:
         run: make
 
       - name: Create Tar File
-        run:
+        run: |
           mkdir "${{ env.VERSIONED_NAME }}"
           tar -czvf "${{ env.GZ_FILENAME }}" "${{ env.VERSIONED_NAME }}"
 
