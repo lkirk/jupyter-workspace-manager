@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"log"
 	"net/http"
 	"os"
@@ -18,6 +19,10 @@ func getWorkspaceDir() string {
 func getWorkspaceTrashDir() string {
 	return path.Join(getWorkspaceDir(), "trash")
 }
+
+//go:embed "VERSION"
+// Version gets incremented when we tag with the release script
+var Version string
 
 func main() {
 	app := &cli.App{
