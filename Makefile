@@ -9,7 +9,7 @@ RELEASE-INCREMENTS:=major minor patch
 define release_template =
 release-$(1):
 	@ \
-	[ -z "$$$$(git status --untracked-files=no --porcelain)" ] || $(error repo dirty) ;\
+	[ -z "$$$$(git status --untracked-files=no --porcelain)" ] || echo "repo dirty" && exit 1 ;\
 	NEW_VERSION=$$$$(awk -F. -vOFS=. -vinc=$(1) \
 	    '{ \
 	        ma=$$$$1; \
