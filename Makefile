@@ -9,6 +9,7 @@ RELEASE-INCREMENTS:=major minor patch
 define release_template =
 release-$(1):
 	@ \
+	[ -z "$$$$(git status --untracked-files=no --porcelain)" ] || $(error repo dirty) ;\
 	NEW_VERSION=$$$$(awk -F. -vOFS=. -vinc=$(1) \
 	    '{ \
 	        ma=$$$$1; \
@@ -24,6 +25,8 @@ release-$(1):
 	) ;\
 	echo "===== Creating a release with the version: $$$$NEW_VERSION =====" ;\
 	set -x ;\
+	echo $$$$NEW_VERSION > VERSION ;\
+	git commit -m'bump version (auto)' VERSION ;\
 	git pull ;\
 	git pull --tags ;\
 	git tag $$$$NEW_VERSION ;\
