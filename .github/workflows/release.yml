@@ -32,4 +32,5 @@ jobs:
         with:
           files: ${{ env.GZ_FILENAME }}
           draft: true
+          tag_name: ${{ env.VERSION }}
           name: ${{ env.VERSION }}
